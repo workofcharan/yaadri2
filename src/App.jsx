@@ -301,42 +301,45 @@ const getGraphPosition = (index, total) => {
 // ============================================================================
 
 const SplashScreen = ({ onContinue }) => {
-  const [show, setShow] = useState(true);
-  
   useEffect(() => {
-    const timer = setTimeout(() => setShow(false), 2500);
+    const timer = setTimeout(() => {
+      if (onContinue) onContinue();
+    }, 2500);
     return () => clearTimeout(timer);
-  }, []);
-  
-  if (!show) return null;
+  }, [onContinue]);
   
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-amber-50 via-rose-50 to-amber-50 flex flex-col items-center justify-center z-50">
-      <div className="text-center space-y-6 animate-fade-in">
+    <div 
+      onClick={() => onContinue && onContinue()}
+      className="fixed inset-0 bg-gradient-to-br from-amber-50 via-rose-50 to-amber-50 flex flex-col items-center justify-center z-50 cursor-pointer select-none"
+    >
+      <div className="text-center space-y-6 animate-fade-in p-6">
         <div className="text-6xl mb-4">🌿</div>
         <h1 className="text-5xl font-serif text-amber-900">YAADRI</h1>
         <p className="text-xl text-amber-700">Your Personal AI Memory Companion</p>
-        <p className="text-base text-amber-600 max-w-xs">Helping you stay connected to the people and moments that matter.</p>
+        <p className="text-base text-amber-600 max-w-xs mx-auto">Helping you stay connected to the people and moments that matter.</p>
         
         <div className="flex gap-2 justify-center pt-8 h-12">
           <div className="w-2 h-2 bg-rose-400 rounded-full animate-pulse"></div>
           <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse animation-delay-1"></div>
           <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse animation-delay-2"></div>
         </div>
+        <p className="text-xs text-amber-500 pt-4">Tap anywhere to continue</p>
       </div>
       
       <style>{`
         @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from { opacity: 0; transform: scale(0.96); }
+          to { opacity: 1; transform: scale(1); }
         }
-        .animate-fade-in { animation: fade-in 0.8s ease-in; }
+        .animate-fade-in { animation: fade-in 0.8s ease-in-out; }
         .animation-delay-1 { animation-delay: 0.2s; }
         .animation-delay-2 { animation-delay: 0.4s; }
       `}</style>
     </div>
   );
 };
+
 
 // ============================================================================
 // COMPONENT: Mode Selection
@@ -526,13 +529,11 @@ const MemoryRescueFlow = ({ memory, onComplete, lang }) => {
       </div>
     </div>
   );
-};
-
-// ============================================================================
+};// ============================================================================
 // COMPONENT: Face Recognition Game
 // ============================================================================
 
-const FaceRecognitionGame = ({ onComplete, lang }) => {
+const FaceRecognitionGame = ({ onComplete, onBack, lang }) => {
   const [selected, setSelected] = useState(null);
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -559,6 +560,14 @@ const FaceRecognitionGame = ({ onComplete, lang }) => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-rose-50 p-6 flex flex-col">
       <div className="max-w-2xl mx-auto w-full flex flex-col justify-center flex-1">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="self-start mb-4 text-amber-800 bg-white/80 hover:bg-white border border-amber-200 px-4 py-2 rounded-xl text-sm font-medium shadow-sm transition-all"
+          >
+            ← Back to Home
+          </button>
+        )}
         <h1 className="text-3xl font-serif text-amber-900 text-center mb-2">
           {t('whoIsThis', lang)}
         </h1>
@@ -625,7 +634,7 @@ const FaceRecognitionGame = ({ onComplete, lang }) => {
 // COMPONENT: Morning Routine Game
 // ============================================================================
 
-const MorningRoutineGame = ({ onComplete, lang }) => {
+const MorningRoutineGame = ({ onComplete, onBack, lang }) => {
   const [items, setItems] = useState([
     { id: 1, name: t('tea', lang), emoji: '☕' },
     { id: 3, name: t('breakfast', lang), emoji: '🥞' },
@@ -699,6 +708,14 @@ const MorningRoutineGame = ({ onComplete, lang }) => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-rose-50 p-6 flex flex-col">
       <div className="max-w-2xl mx-auto w-full flex flex-col justify-center flex-1">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="self-start mb-4 text-amber-800 bg-white/80 hover:bg-white border border-amber-200 px-4 py-2 rounded-xl text-sm font-medium shadow-sm transition-all"
+          >
+            ← Back to Home
+          </button>
+        )}
         <h1 className="text-3xl font-serif text-amber-900 text-center mb-2">
           {t('letRememberMorning', lang)}
         </h1>
@@ -746,7 +763,7 @@ const MorningRoutineGame = ({ onComplete, lang }) => {
 // COMPONENT: Living Memory Graph
 // ============================================================================
 
-const LivingMemoryGraph = ({ lang, onNodeClick }) => {
+const LivingMemoryGraph = ({ lang, onNodeClick, onBack }) => {
   const canvasRef = useRef(null);
   const [selectedNode, setSelectedNode] = useState(null);
   const [nodePositions, setNodePositions] = useState({});
@@ -766,8 +783,16 @@ const LivingMemoryGraph = ({ lang, onNodeClick }) => {
   }, []);
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-cyan-50 p-6">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-cyan-50 p-6 pb-20">
       <div className="max-w-4xl mx-auto">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="mb-4 inline-flex items-center gap-2 text-blue-700 hover:text-blue-900 bg-white/80 backdrop-blur px-4 py-2 rounded-xl text-sm font-medium shadow-sm transition-all"
+          >
+            ← Back to Home
+          </button>
+        )}
         <h1 className="text-3xl font-serif text-blue-900 mb-2">{t('yourMemoryConnections', lang)}</h1>
         <p className="text-blue-700 mb-8">{t('peopleAndPlaces', lang)}</p>
         
@@ -865,13 +890,22 @@ const LivingMemoryGraph = ({ lang, onNodeClick }) => {
 // COMPONENT: Patient Home
 // ============================================================================
 
-const PatientHome = ({ onActivityStart, lang }) => {
+const PatientHome = ({ onActivityStart, onSwitchMode, lang }) => {
   const [currentReminder, setCurrentReminder] = useState('medicine');
+  const [reminderDone, setReminderDone] = useState(false);
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-rose-50 pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-rose-100 p-6 text-center">
+      <div className="bg-white border-b border-rose-100 p-6 text-center relative">
+        {onSwitchMode && (
+          <button
+            onClick={onSwitchMode}
+            className="absolute left-4 top-6 text-xs text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-lg font-medium transition-all"
+          >
+            🔄 Mode
+          </button>
+        )}
         <h1 className="text-4xl font-serif text-amber-900 mb-2">
           {t('goodMorning', lang, { name: DEMO_DATA.patient.name })}
         </h1>
@@ -889,16 +923,16 @@ const PatientHome = ({ onActivityStart, lang }) => {
           {/* Activity 1: Face Recognition */}
           <button
             onClick={() => onActivityStart('face-recognition')}
-            className="w-full bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow overflow-hidden"
+            className="w-full bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow overflow-hidden text-left"
           >
             <div className="p-6 space-y-2">
               <h3 className="text-2xl font-serif text-amber-900 text-left">{t('whoIsThis', lang)}</h3>
               <p className="text-amber-700 text-left">{t('recognizeFace', lang)}</p>
               <div className="flex items-center justify-between pt-2">
                 <span className="text-3xl">👩‍🦱</span>
-                <button className="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-lg font-medium transition-all">
+                <span className="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-lg font-medium transition-all inline-block">
                   {t('play', lang)}
-                </button>
+                </span>
               </div>
             </div>
           </button>
@@ -906,51 +940,73 @@ const PatientHome = ({ onActivityStart, lang }) => {
           {/* Activity 2: Morning Routine */}
           <button
             onClick={() => onActivityStart('morning-routine')}
-            className="w-full bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow overflow-hidden"
+            className="w-full bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow overflow-hidden text-left"
           >
             <div className="p-6 space-y-2">
               <h3 className="text-2xl font-serif text-amber-900 text-left">{t('myMorningRoutine', lang)}</h3>
               <p className="text-amber-700 text-left">{t('letsPutMorning', lang)}</p>
               <div className="flex items-center justify-between pt-2">
                 <span className="text-3xl">☕</span>
-                <button className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg font-medium transition-all">
+                <span className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg font-medium transition-all inline-block">
                   {t('start', lang)}
-                </button>
+                </span>
+              </div>
+            </div>
+          </button>
+
+          {/* Activity 3: Memory Graph */}
+          <button
+            onClick={() => onActivityStart('memory-graph')}
+            className="w-full bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow overflow-hidden text-left"
+          >
+            <div className="p-6 space-y-2">
+              <h3 className="text-2xl font-serif text-blue-900 text-left">{t('yourMemoryConnections', lang)}</h3>
+              <p className="text-blue-700 text-left">{t('peopleAndPlaces', lang)}</p>
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-3xl">🕸️</span>
+                <span className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all inline-block">
+                  {t('viewMemories', lang)}
+                </span>
               </div>
             </div>
           </button>
           
-          {/* Activity 3: Reminder */}
+          {/* Reminder */}
           <div className="bg-white rounded-2xl shadow-md p-6 space-y-2">
             <h3 className="text-2xl font-serif text-amber-900">{t('gentleReminder', lang)}</h3>
             <div className="space-y-2">
               <p className="text-lg text-amber-700 font-medium">{t('medicineTime', lang)}</p>
               <p className="text-2xl text-amber-900 font-serif">9:00 AM</p>
             </div>
-            <button className="w-full mt-4 bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-lg font-medium transition-all">
-              {t('markAsDone', lang)}
+            <button 
+              onClick={() => setReminderDone(!reminderDone)}
+              className={`w-full mt-4 py-3 rounded-lg font-medium transition-all ${
+                reminderDone ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-emerald-500 hover:bg-emerald-600 text-white'
+              }`}
+            >
+              {reminderDone ? '✓ Completed' : t('markAsDone', lang)}
             </button>
           </div>
         </div>
       </div>
       
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-amber-100 flex justify-around py-3">
-        <button className="flex flex-col items-center gap-1 text-amber-900">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-amber-100 flex justify-around py-3 z-30">
+        <button onClick={() => onActivityStart('home')} className="flex flex-col items-center gap-1 text-amber-900 hover:text-rose-600 transition-colors">
           <Home size={24} />
           <span className="text-xs">Home</span>
         </button>
-        <button onClick={() => onActivityStart('face-recognition')} className="flex flex-col items-center gap-1 text-amber-600">
+        <button onClick={() => onActivityStart('face-recognition')} className="flex flex-col items-center gap-1 text-amber-600 hover:text-rose-600 transition-colors">
           <Play size={24} />
           <span className="text-xs">Play</span>
         </button>
-        <button className="flex flex-col items-center gap-1 text-amber-600">
+        <button onClick={() => onActivityStart('memory-graph')} className="flex flex-col items-center gap-1 text-amber-600 hover:text-rose-600 transition-colors">
           <BookOpen size={24} />
           <span className="text-xs">Memories</span>
         </button>
-        <button className="flex flex-col items-center gap-1 text-amber-600">
+        <button onClick={() => onActivityStart('morning-routine')} className="flex flex-col items-center gap-1 text-amber-600 hover:text-rose-600 transition-colors">
           <Volume2 size={24} />
-          <span className="text-xs">Voice</span>
+          <span className="text-xs">Routine</span>
         </button>
       </div>
     </div>
@@ -961,20 +1017,40 @@ const PatientHome = ({ onActivityStart, lang }) => {
 // COMPONENT: Caregiver Home
 // ============================================================================
 
-const CaregiverHome = ({ onActivityStart, lang }) => {
+const CaregiverHome = ({ onActivityStart, onSwitchMode, lang }) => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-teal-50 pb-6">
       {/* Header */}
-      <div className="bg-white border-b border-emerald-100 p-6">
-        <h1 className="text-3xl font-serif text-emerald-900 mb-1">
-          {t('goodMorningCaregiver', lang, { name: DEMO_DATA.caregiver.name })}
-        </h1>
-        <p className="text-emerald-700">{t('thisWeeksMemory', lang)}</p>
+      <div className="bg-white border-b border-emerald-100 p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-serif text-emerald-900 mb-1">
+            {t('goodMorningCaregiver', lang, { name: DEMO_DATA.caregiver.name })}
+          </h1>
+          <p className="text-emerald-700">{t('thisWeeksMemory', lang)}</p>
+        </div>
+        <div className="flex gap-2">
+          {onActivityStart && (
+            <button
+              onClick={() => onActivityStart('memory-graph')}
+              className="text-xs sm:text-sm text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-3 py-2 rounded-xl font-medium transition-all flex items-center gap-1"
+            >
+              🕸️ Memory Graph
+            </button>
+          )}
+          {onSwitchMode && (
+            <button
+              onClick={onSwitchMode}
+              className="text-xs sm:text-sm text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-2 rounded-xl font-medium transition-all flex items-center gap-1"
+            >
+              🔄 Switch Mode
+            </button>
+          )}
+        </div>
       </div>
       
       <div className="max-w-4xl mx-auto p-6 space-y-6">
         {/* Insight Cards */}
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Family Recognition */}
           <div className="bg-white rounded-2xl shadow-md p-6 space-y-3">
             <div className="flex items-start justify-between">
@@ -1064,7 +1140,6 @@ export default function YaadriApp() {
   const [screen, setScreen] = useState('splash');
   const [mode, setMode] = useState(null);
   const [lang, setLang] = useState('en');
-  const [showMenu, setShowMenu] = useState(false);
   
   const handleSelectMode = (selectedMode) => {
     setMode(selectedMode);
@@ -1076,7 +1151,9 @@ export default function YaadriApp() {
   };
   
   const handleActivityStart = (activity) => {
-    if (activity === 'face-recognition') {
+    if (activity === 'home') {
+      setScreen(mode === 'patient' ? 'patient-home' : 'caregiver-home');
+    } else if (activity === 'face-recognition') {
       setScreen('face-recognition');
     } else if (activity === 'morning-routine') {
       setScreen('morning-routine');
@@ -1092,6 +1169,14 @@ export default function YaadriApp() {
       setScreen('caregiver-home');
     }
   };
+
+  const handleBackToHome = () => {
+    setScreen(mode === 'caregiver' ? 'caregiver-home' : 'patient-home');
+  };
+
+  const handleSwitchMode = () => {
+    setScreen('mode-selection');
+  };
   
   const toggleLanguage = () => {
     setLang(lang === 'en' ? 'as' : 'en');
@@ -1100,20 +1185,20 @@ export default function YaadriApp() {
   return (
     <div className="bg-white">
       {/* Language Toggle */}
-      <div className="fixed top-0 right-0 z-40 p-4">
+      <div className="fixed top-4 right-4 z-40">
         <button
           onClick={toggleLanguage}
-          className="bg-white shadow-md rounded-lg px-4 py-2 font-medium text-sm border border-gray-200 hover:bg-gray-50 transition-all"
+          className="bg-white shadow-md rounded-lg px-4 py-2 font-medium text-sm border border-gray-200 hover:bg-gray-50 transition-all flex items-center gap-1.5"
+          title={lang === 'en' ? 'Switch to Assamese' : 'Switch to English'}
         >
-          {lang === 'en' ? '🇮🇳' : '🇬🇧'}
+          <span>{lang === 'en' ? '🇮🇳' : '🇬🇧'}</span>
+          <span className="text-xs font-semibold">{lang === 'en' ? 'AS' : 'EN'}</span>
         </button>
       </div>
       
       {/* Main Content */}
       {screen === 'splash' && (
-        <>
-          <SplashScreen onContinue={() => setScreen('mode-selection')} />
-        </>
+        <SplashScreen onContinue={() => setScreen('mode-selection')} />
       )}
       
       {screen === 'mode-selection' && (
@@ -1121,23 +1206,43 @@ export default function YaadriApp() {
       )}
       
       {screen === 'patient-home' && (
-        <PatientHome onActivityStart={handleActivityStart} lang={lang} />
+        <PatientHome 
+          onActivityStart={handleActivityStart} 
+          onSwitchMode={handleSwitchMode}
+          lang={lang} 
+        />
       )}
       
       {screen === 'caregiver-home' && (
-        <CaregiverHome onActivityStart={handleActivityStart} lang={lang} />
+        <CaregiverHome 
+          onActivityStart={handleActivityStart} 
+          onSwitchMode={handleSwitchMode}
+          lang={lang} 
+        />
       )}
       
       {screen === 'face-recognition' && (
-        <FaceRecognitionGame onComplete={handleActivityComplete} lang={lang} />
+        <FaceRecognitionGame 
+          onComplete={handleActivityComplete} 
+          onBack={handleBackToHome}
+          lang={lang} 
+        />
       )}
       
       {screen === 'morning-routine' && (
-        <MorningRoutineGame onComplete={handleActivityComplete} lang={lang} />
+        <MorningRoutineGame 
+          onComplete={handleActivityComplete} 
+          onBack={handleBackToHome}
+          lang={lang} 
+        />
       )}
       
       {screen === 'memory-graph' && (
-        <LivingMemoryGraph lang={lang} onNodeClick={() => {}} />
+        <LivingMemoryGraph 
+          lang={lang} 
+          onNodeClick={() => {}} 
+          onBack={handleBackToHome}
+        />
       )}
       
       {/* Global Styles */}
@@ -1158,3 +1263,4 @@ export default function YaadriApp() {
     </div>
   );
 }
+
